@@ -1,2 +1,2 @@
 # Sequence-coverager
-Application for highlighting protein sequence (from given uniprot id) based on peptides.txt given from MaxQuant proteomics program
+Application for highlighting protein sequence (using uniprot id) based on peptides.txt (given from MaxQuant proteomics program).
