@@ -115,25 +115,35 @@ def app():
     sequence = "".join(str(x) for x in strips_list)
     original_sequence = sequence
     empty = []
+    empty_shouldnt_exist = []
     #sequence = '<span style="color:black">' + sequence + '</span>'
     
     
     for peptide in peptides_sequnces: # check if peptide is at original sequence!!!
-                
-        if peptide in (sequence and original_sequence):
+   
         
-            m = re.search(peptide, sequence)
-            sequence = sequence[:m.start()] + '<span style="color:blue">' + peptide + '</span>' + sequence[m.end():]
+        if (peptide in sequence) and (peptide in original_sequence): # blbá podmínka ??
+  
+            m = re.search(peptide, sequence)          
+            sequence = sequence[:m.start()] + "<span style='color:blue'>" + peptide + "</span>" + sequence[m.end():]
             
-        if peptide in original_sequence not in sequence: 
-            
-            omit = "(<span style'color:blue'>|</span>)*" # after each letter of peptide
+        elif (peptide in original_sequence) and (peptide not in sequence): 
+
+            omit = "(<span style='color:blue'>|</span>)*" # after each letter of peptide
             m = re.search(omit.join(x for x in peptide), sequence)
-            peptide_location = sequence[m.span()[0]:m.span()[1]]
-                       
+            peptide_newlocation = sequence[m.span()[0]:m.span()[1]]
             
-            if "<span style'color:blue'>" and "</span>" in sequence:
-                peptide_location = peptide_location.replace("<span style'color:blue'>", "").replace("</span>", "") # remove
+            if ("<span style='color:blue'>" in peptide_newlocation) and ("</span>" in peptide_newlocation):
+                peptide_newlocation = peptide_newlocation.replace("<span style='color:blue'>", "").replace("</span>", "") # remove formatting from peptide string
+                sequence = sequence[:m.start()] + '<span style="color:blue">' + peptide_newlocation + '</span>' + sequence[m.end():]         
+            elif "<span style='color:blue'>" in peptide_newlocation:
+                peptide_newlocation = peptide_newlocation.replace("<span style='color:blue'>", "") # remove formatting from peptide string
+                sequence = sequence[:m.start()] + "<span style='color:blue'>" + peptide_newlocation + sequence[m.end():]
+            elif "</span>" in peptide_newlocation:
+                peptide_newlocation = peptide_newlocation.replace("</span>", "") # remove formatting from peptide string
+                sequence = sequence[:m.start()]  + peptide_newlocation + "</span>"  + sequence[m.end():]
+            else:
+                empty_shouldnt_exist.append(peptide_newlocation)
             
         
         else: empty.append(peptide)
@@ -141,6 +151,7 @@ def app():
     st.markdown(sequence, unsafe_allow_html=True)   
     
     st.write("Nenamapované peptidy after:\n\n", empty)
+    st.write("Tady by nic byt nemělo!:\n\n", empty_shouldnt_exist)
  
  
     #st.write(sequence)
