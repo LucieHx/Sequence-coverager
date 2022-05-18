@@ -4,7 +4,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-#from termcolor import colored
 import re
 
 from contextlib import contextmanager, redirect_stdout
@@ -80,49 +79,26 @@ def app():
         
     sequence = "".join(str(x) for x in strips_list)
     
-    sequence_for_display = ' '.join([sequence[i:i+60] for i in range(0, len(sequence), 60)]) # necessary to wrapp string
+    #sequence_for_display = ' '.join([sequence[i:i+60] for i in range(0, len(sequence), 60)]) # necessary to wrapp string
                                                                                              # so white space are added
     
-    st.write("Sequence:\n\n", sequence_for_display)
+    # Uncomment?
     
-    empty = []
+    #st.write("Original sequence:\n\n")#, sequence_for_display)
+    #sequence_for_display =  "<span style='word-wrap:break-word;'>" + sequence +  "</span>"
+    #st.markdown(sequence_for_display, unsafe_allow_html=True) 
 
-    # for peptide in peptides_sequnces:
-        # if peptide in sequence:
-            # m = re.search(peptide, sequence)
-            # sequence = sequence[:m.start()] + "\x1b[44;33m" + peptide + "\x1b[m" + sequence[m.end():]
-        # else: empty.append(peptide)
-        
-    for peptide in peptides_sequnces:
-        if peptide in sequence:
-            m = re.search(peptide, sequence)
-            sequence = sequence[:m.start()] + "**" + peptide + "**" + sequence[m.end():]
-        else: empty.append(peptide)
-        
-    sequence_for_display_bold = ' '.join([sequence[i:i+60] for i in range(0, len(sequence), 60)]) # necessary to wrapp string
-                                                                                             # so white space are added
-    st.markdown(sequence)   
-    st.write("Nenamapované peptidy before:\n\n", empty)
-    
-    pokus='<span style="color:blue">' + 'blabla' + '</span>'
-    
-    
-    html_string = '<span style="color:blue"> blabla</span>' + '<span style="color:black"> some text</span>' + '<span style="color:blue"> some text</span>' 
 
-    st.markdown(html_string, unsafe_allow_html=True)
-    st.markdown(pokus, unsafe_allow_html=True)
- 
     sequence = "".join(str(x) for x in strips_list)
     original_sequence = sequence
     empty = []
     empty_shouldnt_exist = []
-    #sequence = '<span style="color:black">' + sequence + '</span>'
     
     
-    for peptide in peptides_sequnces: # check if peptide is at original sequence!!!
+    for peptide in peptides_sequnces: # check if peptide is in original sequence!!!
    
         
-        if (peptide in sequence) and (peptide in original_sequence): # blbá podmínka ??
+        if (peptide in sequence) and (peptide in original_sequence): 
   
             m = re.search(peptide, sequence)          
             sequence = sequence[:m.start()] + "<span style='color:blue'>" + peptide + "</span>" + sequence[m.end():]
@@ -147,30 +123,20 @@ def app():
             
         
         else: empty.append(peptide)
+        
  
-    st.markdown(sequence, unsafe_allow_html=True)   
+    #st.markdown(sequence, unsafe_allow_html=True)   
     
-    st.write("Nenamapované peptidy after:\n\n", empty)
+    # adding text wrapping
+    st.write("Mapped peptides:\n\n")
+    sequence_for_display =  "<span style='word-wrap:break-word;'>" + sequence +  "</span>"
+    st.markdown(sequence_for_display, unsafe_allow_html=True) 
+    
+    st.write("Not found peptides:\n\n", empty)
     st.write("Tady by nic byt nemělo!:\n\n", empty_shouldnt_exist)
  
  
-    #st.write(sequence)
-    # '<p style="color:Blue;">Original image</p>'
     
-    # original_title = '<p style="font-family:Courier; color:Blue; font-size: 20px;">Original image</p>'
-    # st.markdown(original_title, unsafe_allow_html=True)
-    
-    
-    #st.markdown(f'<span style="color:blue">some *blue* text</span>)
-    #st.write(f'blabla{#1aa3ff}')
-    
-    # colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple']
-    # for color in colors:
-        # st.write('<span style="color:%s">%s</span>' % (color, "blb"), unsafe_allow_html=True)
-    # #color=["blue"]
-    # st.write('<span style="color:%s">%s</span>' % (color, color), unsafe_allow_html=True)
-
-
     # scatter matrix plat
     #st.write(px.scatter_matrix(data, dimensions=dimensions, color=color, opacity=opacity))
 
