@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
@@ -30,23 +29,24 @@ def app():
     st.title("Sequence coverage")
     
     # vstup 1: výběr datové sady
-    data_file_path = st.file_uploader("Load peptides.txt containing Sequence and Leading razor protein columns: ")
+    data_file_path = st.file_uploader("Load peptides.txt. File must contain Sequence and Leading razor protein columns.")
     data = None
    
-    columns = ['Leading razor protein', 'Sequence'] # columns to be loaded
+    
     
         
     if data_file_path is not None:
       
+        columns = ['Leading razor protein', 'Sequence'] # columns to be loaded
         data = pd.read_csv(data_file_path, sep="\t")
         col = data.columns.tolist()
         
         # Check whether the file is ok
         
         if ("Leading razor protein" not in col) or ("Sequence" not in col):
-            st.warning("You loaded a wrong file! File must include **Sequence** and **Leading razor protein** columns!")
+            st.error("You loaded a wrong file! File must include **Sequence** and **Leading razor protein** columns!")
             return
-        else: st.write("File seems to be OK!")
+        #else: st.write("File seems to be OK!")
         
         data = data[["Sequence", "Leading razor protein"]]
     
@@ -72,7 +72,7 @@ def app():
         uniprot_id = st.text_input("Enter uniprot ID")
     
         
-        st.write(uniprot_id)
+        #st.write(uniprot_id)
 
         # Create url from uniprot id and access sequence
         url = 'https://www.uniprot.org/uniprot/' + uniprot_id + '.fasta'
@@ -88,53 +88,29 @@ def app():
         
         strips = list(soup.stripped_strings) # pure fasta file
             
-                          
+        if data_file_path is None:
+            st.warning("Waiting for peptides.txt ...")
+            return
     except:
         st.warning("You didn't give me uniprot ID")
         return
             
-    if uniprot_id is not None:
-        st.write(uniprot_id)
+    # if uniprot_id is not None:
+        # st.write(uniprot_id)
 
-    if uniprot_id is None:
-        st.warning("No uniprot id loaded")
+    # if uniprot_id is None:
+        # st.warning("No uniprot id loaded")
         
     # Getting sequences for selected uniprot id (protein)
     peptides_sequnces = data[data["Leading razor protein"] == uniprot_id]["Sequence"]
     
-    # # Create url from uniprot id and access sequence
-    # url = 'https://www.uniprot.org/uniprot/' + uniprot_id + '.fasta'
-
-    # html = urlopen(url).read()
-
-    # soup = BeautifulSoup(html)
-
-    # strips = []
-
-    # for script in soup(["script", "style"]):
-        # script.decompose() 
-        
-    # strips = list(soup.stripped_strings) # pure fasta file
-
     st.write("FASTA file:\n\n", strips, "\n")
 
     strips_string = "".join(str(x) for x in strips) # converts from list to string
 
     strips_list = strips_string.rsplit("\n")[1:] # makes list again by separation with newline "\n"
                                                  # and removes header
-        
-    sequence = "".join(str(x) for x in strips_list)
-    
-    #sequence_for_display = ' '.join([sequence[i:i+60] for i in range(0, len(sequence), 60)]) # necessary to wrapp string
-                                                                                             # so white space are added
-    
-    # Uncomment?
-    
-    #st.write("Original sequence:\n\n")#, sequence_for_display)
-    #sequence_for_display =  "<span style='word-wrap:break-word;'>" + sequence +  "</span>"
-    #st.markdown(sequence_for_display, unsafe_allow_html=True) 
-
-
+                                                                                 
     sequence = "".join(str(x) for x in strips_list)
     original_sequence = sequence
     empty = []
@@ -173,12 +149,19 @@ def app():
     #st.markdown(sequence, unsafe_allow_html=True)   
     
     # adding text wrapping
-    st.write("Mapped peptides:\n\n")
+    st.write("**Mapped peptides:**\n\n")
     sequence_for_display =  "<span style='word-wrap:break-word;'>" + sequence +  "</span>"
     st.markdown(sequence_for_display, unsafe_allow_html=True) 
+        
+    # Check if all peptides have been mapped!
     
-    st.write("Not found peptides:\n\n", empty)
-    st.write("Tady by nic byt nemělo!:\n\n", empty_shouldnt_exist)
+    if len(empty) != 0:
+        st.warning("These peptides haven't been mapped: ", empty)
+    else: st.write("**All peptides have been mapped!**")
+    
+    if len(empty_shouldnt_exist) != 0:
+        st.warning("Something is wrong, contact me!")
+   
  
 if __name__ == "__main__":
     app()
