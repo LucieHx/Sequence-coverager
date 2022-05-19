@@ -30,42 +30,27 @@ def app():
     st.title("Sequence coverage")
     
     # vstup 1: výběr datové sady
-    data_file_path = st.file_uploader("Upload peptides.txt: ")
+    data_file_path = st.file_uploader("Load peptides.txt containing Sequence and Leading razor protein columns: ")
     data = None
    
     columns = ['Leading razor protein', 'Sequence'] # columns to be loaded
     
-    # if data_file_path.name is not ["peptides.txt"]:
-        # st.warning("This is not peptides.txt!!! Please get me aprropritate file!")
-        # return
         
     if data_file_path is not None:
-    
-        # check column names:
+      
+        data = pd.read_csv(data_file_path, sep="\t")
+        col = data.columns.tolist()
         
-        col = pd.read_csv(data_file_path, sep='\t', nrows=0).columns.tolist()
-        st.write(col)
-        
+        # Check whether the file is ok
         
         if ("Leading razor protein" not in col) or ("Sequence" not in col):
-            st.warning("You loaded a wrong file! File must include **Leading razor protein** and **Sequence** columns!")
+            st.warning("You loaded a wrong file! File must include **Sequence** and **Leading razor protein** columns!")
             return
         else: st.write("File seems to be OK!")
         
-        
-       
-            
-        # seek back to position 0 after reading 
-        
-        st.write("File name:", data_file_path.name)
-        st.write(columns)
-        
-        # read data if user uploads a file
-        data = pd.read_csv(data_file_path, sep='\t', usecols = columns)        
-        
-
-            
-        # seek back to position 0 after reading    
+        data = data[["Sequence", "Leading razor protein"]]
+    
+    
         data_file_path.seek(0)
         
         
@@ -74,17 +59,21 @@ def app():
         #return
     
     # vstup 2: výběr uniprotid
+    # uniprot_id = st.text_input("Enter uniprot ID")
+    
+    # st.write(uniprot_id)
+    
+    
+    
     #uniprot_id = st.text_input("Enter uniprot ID")
     
-    #st.write(uniprot_id)
-    
-    #uniprot_id = st.text_input("Enter uniprot ID")
     try:
     
         uniprot_id = st.text_input("Enter uniprot ID")
     
+        
         st.write(uniprot_id)
-    
+
         # Create url from uniprot id and access sequence
         url = 'https://www.uniprot.org/uniprot/' + uniprot_id + '.fasta'
 
@@ -98,17 +87,18 @@ def app():
             script.decompose() 
         
         strips = list(soup.stripped_strings) # pure fasta file
+            
+                          
     except:
-        st.error("Please enter a valid input")
+        st.warning("You didn't give me uniprot ID")
         return
-    
+            
     if uniprot_id is not None:
         st.write(uniprot_id)
-    
+
     if uniprot_id is None:
         st.warning("No uniprot id loaded")
         
-    
     # Getting sequences for selected uniprot id (protein)
     peptides_sequnces = data[data["Leading razor protein"] == uniprot_id]["Sequence"]
     
@@ -151,9 +141,8 @@ def app():
     empty_shouldnt_exist = []
     
     
-    for peptide in peptides_sequnces: # check if peptide is in original sequence!!!
+    for peptide in peptides_sequnces: # check peptide original sequence!!!
    
-        
         if (peptide in sequence) and (peptide in original_sequence): 
   
             m = re.search(peptide, sequence)          
