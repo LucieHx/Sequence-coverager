@@ -10,4 +10,4 @@ Needed inputs:
 
 ________
 streamlit app can be tried with test.txt file from repo and
-uniprot ID (e.q. you can try P0CAP1
+uniprot ID (e.q. P0CAP1, P55083)
